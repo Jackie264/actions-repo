@@ -1,5 +1,5 @@
 name: Generate luci.mk patch
-description: Scan packages/Makefile for '../../luci.mk' includes and generate a patch
+description: "Scan packages/Makefile for '../../luci.mk' includes and generate a patch"
 author: jackie264
 branding:
   icon: file
@@ -7,17 +7,17 @@ branding:
 
 inputs:
   packages_dir:
-    description: Path to packages directory (default: packages)
+    description: "Path to packages directory (default: packages)"
     required: false
     default: packages
   output_dir:
-    description: Directory to write patches (default: patches)
+    description: "Directory to write patches (default: patches)"
     required: false
     default: patches
 
 outputs:
   patch_file:
-    description: Path to generated patch file (if any)
+    description: "Path to generated patch file (if any)"
     value: ${{ steps.run.outputs.patch_file }}
 
 runs:
