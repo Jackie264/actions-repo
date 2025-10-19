@@ -19,7 +19,8 @@
     output_file: release-info-${{ matrix.platform }}.txt
 
 - name: Show count
-  run: echo "Processed ${{ steps.geninfo.outputs.count }} files"```
+  run: echo "Processed ${{ steps.geninfo.outputs.count }} files"
+```
 
 ### 2. parse-ipk-file （单文件版）
 
