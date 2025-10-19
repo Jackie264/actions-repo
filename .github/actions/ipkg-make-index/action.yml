@@ -1,5 +1,5 @@
 name: ipkg-make-index
-description: Generate OpenWrt Packages index from a directory of .ipk files
+description: "Generate OpenWrt Packages index from a directory of .ipk files"
 author: jackie264
 branding:
   icon: archive
@@ -7,16 +7,16 @@ branding:
 
 inputs:
   pkg_dir:
-    description: Directory containing .ipk files
+    description: "Directory containing .ipk files"
     required: true
   output_file:
-    description: Path to write the Packages index
+    description: "Path to write the Packages index"
     required: false
     default: Packages
 
 outputs:
   index_file:
-    description: Path to generated Packages index
+    description: "Path to generated Packages index"
     value: ${{ steps.run.outputs.index_file }}
 
 runs:
