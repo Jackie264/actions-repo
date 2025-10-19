@@ -38,6 +38,7 @@
     echo "pkg=${{ steps.parse.outputs.pkg }}"
     echo "ver=${{ steps.parse.outputs.ver }}"
     echo "arch=${{ steps.parse.outputs.arch }}"
+```
 
 ### 3. gen-luci-mk-patch
 
@@ -53,6 +54,7 @@
 
 - name: Show patch path
   run: echo "Patch file: ${{ steps.lucipatch.outputs.patch_file }}"
+```
 
 ### 4. ipkg-make-index
 
@@ -68,13 +70,14 @@
 
 - name: Show index path
   run: echo "Packages index at ${{ steps.index.outputs.index_file }}"
+```
 
-🔖 版本管理
+## 🔖 版本管理
 
 •  推荐使用 tag（例如 @v1.0.0）来引用，保证稳定性。
 •  如果要持续跟进最新改动，可以用 @main，但可能会有不兼容更新。
 
-📌 总结
+## 📌 总结
 
 这个仓库目前提供了四个 Action，覆盖了 包解析 → 信息汇总 → luci.mk 补丁 → Packages 索引 的完整链路。  
 你可以单独使用，也可以在一个 CI/CD workflow 里组合调用。
