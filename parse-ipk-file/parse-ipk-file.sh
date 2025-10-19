@@ -27,17 +27,19 @@ PKG="${BASE%_*_*}"
 
 # version = strip "<pkg>_" then drop the final underscore segment
 VER_ARCH="${BASE#"${PKG}"_}"
-VER="${VER_ARCH%_*}"
+VER_FULL="${VER_ARCH%_*}"
+VER="${VER_FULL%%~*}"
 
 # arch = last underscore segment
 ARCH="${BASE##*_}"
 
-echo "📦 Parsed: pkg=$PKG, ver=$VER, arch=$ARCH"
+echo "📦 Parsed: pkg=$PKG, ver=$VER, ver_full=$VER_FULL, arch=$ARCH"
 
 # 输出到 GITHUB_OUTPUT
 {
   echo "pkg=$PKG"
   echo "ver=$VER"
+  echo "ver_full=$VER_FULL"
   echo "arch=$ARCH"
 } >> "$GITHUB_OUTPUT"
 
@@ -45,5 +47,6 @@ echo "📦 Parsed: pkg=$PKG, ver=$VER, arch=$ARCH"
 {
   echo "pkg=$PKG"
   echo "ver=$VER"
+  echo "ver_full=$VER_FULL"
   echo "arch=$ARCH"
 } > "$OUTPUT_DIR/ipk-meta.txt"
