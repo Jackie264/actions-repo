@@ -15,16 +15,13 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
         with:
-          fetch-depth: 0   # 必须完整历史才能打 tag
+          fetch-depth: 0   # 必须完整历史才能操作 tag
 
       - name: Generate version
         id: ver
         run: |
           # 这里你可以自定义版本号策略
-          # 方式1：用日期+短SHA
           VERSION="v$(date +'%Y.%m.%d')-$(git rev-parse --short HEAD)"
-          # 方式2：如果你维护了 VERSION 文件，可以直接读取
-          # VERSION="v$(cat VERSION)"
           echo "VERSION=$VERSION" >> $GITHUB_ENV
           echo "version=$VERSION" >> $GITHUB_OUTPUT
 
@@ -35,6 +32,26 @@ jobs:
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
 
+          # 如果 tag 已存在，先删除再打
+          if git rev-parse "$VERSION" >/dev/null 2>&1; then
+            git tag -d "$VERSION"
+            git push origin :refs/tags/$VERSION
+          fi
+
+          git tag "$VERSION"
+          git push origin "$VERSION"
+
+      - name: Delete old tags (keep only latest)
+        run: |
+          VERSION=${{ env.VERSION }}
+          echo "保留最新 tag: $VERSION，删除其他所有 tag"
+          git fetch --tags
+          for t in $(git tag); do
+            if [ "$t" != "$VERSION" ]; then
+              echo "删除旧 tag: $t"
+              git push origin :refs/tags/$t
+            fi
+          done
           # 如果 tag 已存在，先删除再打
           if git rev-parse "$VERSION" >/dev/null 2>&1; then
             git tag -d "$VERSION"
