@@ -26,11 +26,11 @@ runs:
     - name: Run generator
       id: run
       shell: bash
+      env:
+        PACKAGES_DIRS: ${{ inputs.packages_dir }}
+        PATCH_DIR: ${{ inputs.output_dir }}
       run: |
         chmod +x "${GITHUB_ACTION_PATH}/gen-luci-mk-patch.sh"
-        ROOT_DIR="$PWD"
-        PATCH_DIR="${{ inputs.output_dir }}"
-        PACKAGES_DIR="${{ inputs.packages_dir }}"
         PATCH_FILE="$PATCH_DIR/0001-fix-luci-mk-include.patch"
 
         "${GITHUB_ACTION_PATH}/gen-luci-mk-patch.sh"
