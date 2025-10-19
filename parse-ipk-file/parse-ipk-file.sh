@@ -6,8 +6,13 @@ OUTPUT_DIR="${OUTPUT_DIR:-.}"
 
 mkdir -p "$OUTPUT_DIR"
 
-# 支持 glob，取第一个匹配文件
-FILE=$(find . -type f -path "$IPK_FILE" | head -n 1 || true)
+# 判断是否是现成的文件
+if [ -f "$IPK_FILE" ]; then
+  FILE="$IPK_FILE"
+else
+  # 尝试匹配相对路径和 ./ 前缀
+  FILE=$(find . -type f \( -path "$IPK_FILE" -o -path "./$IPK_FILE" \) | head -n 1 || true)
+fi
 
 if [ -z "$FILE" ]; then
   echo "❌ No ipk file found matching: $IPK_FILE"
