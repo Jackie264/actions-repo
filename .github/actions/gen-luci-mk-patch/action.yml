@@ -1,0 +1,42 @@
+name: Generate luci.mk patch
+description: Scan packages/Makefile for '../../luci.mk' includes and generate a patch
+author: jackie264
+branding:
+  icon: file
+  color: orange
+
+inputs:
+  packages_dir:
+    description: Path to packages directory (default: packages)
+    required: false
+    default: packages
+  output_dir:
+    description: Directory to write patches (default: patches)
+    required: false
+    default: patches
+
+outputs:
+  patch_file:
+    description: Path to generated patch file (if any)
+    value: ${{ steps.run.outputs.patch_file }}
+
+runs:
+  using: composite
+  steps:
+    - name: Run generator
+      id: run
+      shell: bash
+      run: |
+        chmod +x "${GITHUB_ACTION_PATH}/gen-luci-mk-patch.sh"
+        ROOT_DIR="$PWD"
+        PATCH_DIR="${{ inputs.output_dir }}"
+        PACKAGES_DIR="${{ inputs.packages_dir }}"
+        PATCH_FILE="$PATCH_DIR/0001-fix-luci-mk-include.patch"
+
+        "${GITHUB_ACTION_PATH}/gen-luci-mk-patch.sh"
+
+        if [ -s "$PATCH_FILE" ]; then
+          echo "patch_file=$PATCH_FILE" >> $GITHUB_OUTPUT
+        else
+          echo "patch_file=" >> $GITHUB_OUTPUT
+        fi
