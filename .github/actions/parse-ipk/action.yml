@@ -1,5 +1,5 @@
 name: Parse IPK filenames (directory)
-description: Extract pkg, version, and arch from OpenWrt .ipk files under a directory and emit a summary file.
+description: "Extract pkg, version, and arch from OpenWrt .ipk files under a directory and emit a summary file."
 author: Jackie264
 branding:
   icon: package
@@ -23,7 +23,7 @@ inputs:
 
 outputs:
   count:
-    description: Number of .ipk files processed
+    description: "Number of .ipk files processed"
     value: ${{ steps.run.outputs.count }}
 
 runs:
