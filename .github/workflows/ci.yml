@@ -1,0 +1,88 @@
+name: CI
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+
+jobs:
+  lint-scripts:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Install shellcheck
+        run: sudo apt-get update && sudo apt-get install -y shellcheck
+
+      - name: Run shellcheck
+        run: |
+          shellcheck .github/actions/*/*.sh
+
+  test-actions:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Prepare dummy ipk files
+        run: |
+          mkdir -p sdk/upload/x86_64/packages
+          echo "dummy" > sdk/upload/x86_64/packages/testpkg_1.0.0_x86_64.ipk
+          echo "dummy" > sdk/upload/x86_64/packages/anotherpkg_2.3.4_all.ipk
+
+      - name: Test parse-ipk (batch)
+        id: parsebatch
+        uses: ./.github/actions/parse-ipk
+        with:
+          base_path: sdk/upload/x86_64/packages
+          pattern: "*.ipk"
+          format: table
+          output_file: release-info.txt
+
+      - name: Show parse-ipk output
+        run: cat release-info.txt
+
+      - name: Test parse-ipk-file (single)
+        id: parsefile
+        uses: ./.github/actions/parse-ipk-file
+        with:
+          file: sdk/upload/x86_64/packages/testpkg_1.0.0_x86_64.ipk
+
+      - name: Show parse-ipk-file outputs
+        run: |
+          echo "pkg=${{ steps.parsefile.outputs.pkg }}"
+          echo "ver=${{ steps.parsefile.outputs.ver }}"
+          echo "arch=${{ steps.parsefile.outputs.arch }}"
+
+      - name: Prepare dummy Makefile for luci patch
+        run: |
+          mkdir -p packages/foo
+          cat > packages/foo/Makefile <<'EOF'
+          include ../../luci.mk
+          EOF
+
+      - name: Test gen-luci-mk-patch
+        id: lucipatch
+        uses: ./.github/actions/gen-luci-mk-patch
+        with:
+          packages_dir: packages
+          output_dir: patches
+
+      - name: Show luci patch file
+        run: |
+          if [ -n "${{ steps.lucipatch.outputs.patch_file }}" ]; then
+            cat "${{ steps.lucipatch.outputs.patch_file }}"
+          else
+            echo "No patch generated"
+          fi
+
+      - name: Test ipkg-make-index
+        id: index
+        uses: ./.github/actions/ipkg-make-index
+        with:
+          pkg_dir: sdk/upload/x86_64/packages
+          output_file: Packages
+
+      - name: Show Packages index
+        run: cat Packages
