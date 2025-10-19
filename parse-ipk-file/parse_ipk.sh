@@ -1,21 +1,42 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-# parse_ipk_filename: extract pkg, version, arch from an .ipk filename
-# Format: <pkg>_<version>_<arch>.ipk
-parse_ipk_filename() {
-  local fname="$1"
-  local base="${fname%.ipk}"
+IPK_FILE="${IPK_FILE:?IPK_FILE not set}"
+OUTPUT_DIR="${OUTPUT_DIR:-.}"
 
-  # pkg = everything before the last two underscore segments
-  local pkg="${base%_*_*}"
+mkdir -p "$OUTPUT_DIR"
 
-  # version = strip "<pkg>_" then drop the final underscore segment
-  local ver_arch="${base#"${pkg}"_}"
-  local ver="${ver_arch%_*}"
+# 支持 glob，取第一个匹配文件
+FILE=$(ls $IPK_FILE 2>/dev/null | head -n 1 || true)
 
-  # arch = last underscore segment
-  local arch="${base##*_}"
+if [ -z "$FILE" ]; then
+  echo "❌ No ipk file found matching: $IPK_FILE"
+  exit 1
+fi
 
-  echo "pkg=$pkg ver=$ver arch=$arch"
-}
+BASENAME=$(basename "$FILE")
+BASE="${BASENAME%.ipk}"
+
+# pkg = everything before the last two underscore segments
+PKG="${BASE%_*_*}"
+
+# version = strip "<pkg>_" then drop the final underscore segment
+VER_ARCH="${BASE#${PKG}_}"
+VER="${VER_ARCH%_*}"
+
+# arch = last underscore segment
+ARCH="${BASE##*_}"
+
+echo "📦 Parsed: pkg=$PKG, ver=$VER, arch=$ARCH"
+
+# 输出到 GITHUB_OUTPUT
+echo "pkg=$PKG"   >> "$GITHUB_OUTPUT"
+echo "ver=$VER"   >> "$GITHUB_OUTPUT"
+echo "arch=$ARCH" >> "$GITHUB_OUTPUT"
+
+# 也写到文件，方便调试或后续使用
+{
+  echo "pkg=$PKG"
+  echo "ver=$VER"
+  echo "arch=$ARCH"
+} > "$OUTPUT_DIR/ipk-meta.txt"
