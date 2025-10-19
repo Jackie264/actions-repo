@@ -7,7 +7,7 @@ OUTPUT_DIR="${OUTPUT_DIR:-.}"
 mkdir -p "$OUTPUT_DIR"
 
 # 支持 glob，取第一个匹配文件
-FILE=$(find . -maxdepth 1 -type f -name "$IPK_FILE" | head -n 1 || true)
+FILE=$(find . -type f -path "$IPK_FILE" | head -n 1 || true)
 
 if [ -z "$FILE" ]; then
   echo "❌ No ipk file found matching: $IPK_FILE"
