@@ -1,5 +1,5 @@
 name: Parse single IPK filename
-description: Extract pkg, version, and arch from a single .ipk filename
+description: "Extract pkg, version, and arch from a single .ipk filename"
 author: jackie264
 branding:
   icon: package
@@ -7,7 +7,7 @@ branding:
 
 inputs:
   file:
-    description: Path to the .ipk file (absolute or workspace-relative)
+    description: "Path to the .ipk file (absolute or workspace-relative)"
     required: true
 
 outputs:
