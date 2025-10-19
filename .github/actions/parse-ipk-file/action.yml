@@ -12,13 +12,13 @@ inputs:
 
 outputs:
   pkg:
-    description: Package name
+    description: "Package name"
     value: ${{ steps.run.outputs.pkg }}
   ver:
-    description: Package version
+    description: "Package version"
     value: ${{ steps.run.outputs.ver }}
   arch:
-    description: Package architecture
+    description: "Package architecture"
     value: ${{ steps.run.outputs.arch }}
 
 runs:
