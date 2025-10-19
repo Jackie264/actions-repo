@@ -20,7 +20,7 @@ jobs:
 
       - name: Run shellcheck
         run: |
-          shellcheck .github/*/*.sh
+          shellcheck ./*/*.sh
 
   test-actions:
     runs-on: ubuntu-latest
@@ -36,7 +36,7 @@ jobs:
 
       - name: Test parse-ipk (batch)
         id: parsebatch
-        uses: ./.github/parse-ipk
+        uses: ./parse-ipk
         with:
           base_path: sdk/upload/x86_64/packages
           pattern: "*.ipk"
@@ -48,7 +48,7 @@ jobs:
 
       - name: Test parse-ipk-file (single)
         id: parsefile
-        uses: ./.github/parse-ipk-file
+        uses: ./parse-ipk-file
         with:
           file: sdk/upload/x86_64/packages/testpkg_1.0.0_x86_64.ipk
 
@@ -67,7 +67,7 @@ jobs:
 
       - name: Test gen-luci-mk-patch
         id: lucipatch
-        uses: ./.github/gen-luci-mk-patch
+        uses: ./gen-luci-mk-patch
         with:
           packages_dir: packages
           output_dir: patches
@@ -82,7 +82,7 @@ jobs:
 
       - name: Test ipkg-make-index
         id: index
-        uses: ./.github/ipkg-make-index
+        uses: ./ipkg-make-index
         with:
           pkg_dir: sdk/upload/x86_64/packages
           output_file: Packages
