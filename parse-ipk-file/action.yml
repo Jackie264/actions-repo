@@ -7,8 +7,12 @@ branding:
 
 inputs:
   file:
-    description: "Path to the .ipk file (absolute or workspace-relative)"
+    description: "Path to .ipk file (glob allowed)"
     required: true
+  output_dir:
+    description: "Directory to write parsed metadata (default: .)"
+    required: false
+    default: "."
 
 outputs:
   pkg:
@@ -24,18 +28,12 @@ outputs:
 runs:
   using: composite
   steps:
-    - name: Load parser
-      shell: bash
-      run: |
-        source "${GITHUB_ACTION_PATH}/parse_ipk.sh"
-
     - name: Run parser
       id: run
       shell: bash
+      env:
+        IPK_FILE: ${{ inputs.file }}
+        OUTPUT_DIR: ${{ inputs.output_dir }}
       run: |
-        FILE="${{ inputs.file }}"
-        fname="$(basename "$FILE")"
-        eval "$(parse_ipk_filename "$fname")"
-        echo "pkg=$pkg" >> $GITHUB_OUTPUT
-        echo "ver=$ver" >> $GITHUB_OUTPUT
-        echo "arch=$arch" >> $GITHUB_OUTPUT
+        chmod +x "${GITHUB_ACTION_PATH}/parse-ipk-file.sh"
+        "${GITHUB_ACTION_PATH}/parse-ipk-file.sh"
