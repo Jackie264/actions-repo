@@ -6,8 +6,7 @@ PATCH_DIR="$ROOT_DIR/patches"
 PATCH_FILE="$PATCH_DIR/0001-fix-luci-mk-include.patch"
 
 mkdir -p "$PATCH_DIR"
-> "$PATCH_FILE"
-
+: > "$PATCH_FILE"
 echo "🔍 Scanning for '../../luci.mk' includes..."
 
 # 遍历 packages 下的 Makefile
