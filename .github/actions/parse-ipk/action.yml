@@ -1,0 +1,110 @@
+name: Parse IPK filenames (directory)
+description: Extract pkg, version, and arch from OpenWrt .ipk files under a directory and emit a summary file.
+author: Jackie264
+branding:
+  icon: package
+  color: blue
+
+inputs:
+  base_path:
+    description: Absolute or workspace-relative directory to search
+    required: true
+  pattern:
+    description: Glob pattern relative to base_path (default **/*.ipk)
+    required: false
+    default: "**/*.ipk"
+  format:
+    description: Output format: table | csv | jsonl
+    required: false
+    default: "table"
+  output_file:
+    description: Path (workspace-relative or absolute) to write the output file
+    required: true
+
+outputs:
+  count:
+    description: Number of .ipk files processed
+    value: ${{ steps.run.outputs.count }}
+
+runs:
+  using: composite
+  steps:
+    - name: Load parser
+      shell: bash
+      run: |
+        set -euo pipefail
+        # Load parse_ipk.sh from this action directory
+        source "${GITHUB_ACTION_PATH}/parse_ipk.sh"
+
+    - name: Run
+      id: run
+      shell: bash
+      run: |
+        set -euo pipefail
+
+        BASE="${{ inputs.base_path }}"
+        PATTERN="${{ inputs.pattern }}"
+        FORMAT="${{ inputs.format }}"
+        OUT="${{ inputs.output_file }}"
+
+        # Normalize BASE to absolute
+        if [[ "${BASE}" != /* ]]; then
+          BASE="${GITHUB_WORKSPACE}/${BASE}"
+        fi
+
+        # Normalize OUT to absolute
+        if [[ "${OUT}" != /* ]]; then
+          OUT="${GITHUB_WORKSPACE}/${OUT}"
+        fi
+
+        # Enable globstar/nullglob for robust pattern expansion
+        shopt -s globstar nullglob
+
+        # Collect files via glob (preserves user intent for patterns like **/*.ipk)
+        files=( "${BASE}/${PATTERN}" )
+        # Filter to .ipk only
+        ipk_files=()
+        for f in "${files[@]}"; do
+          [[ -f "$f" && "$f" == *.ipk ]] && ipk_files+=( "$f" )
+        done
+
+        count="${#ipk_files[@]}"
+
+        # Prepare header
+        : > "${OUT}"
+        case "${FORMAT}" in
+          table)
+            echo "### Packages Version" >> "${OUT}"
+            echo "**Package name**|**Version**|**Arch**" >> "${OUT}"
+            echo "-|-|-" >> "${OUT}"
+            ;;
+          csv)
+            echo "pkg,version,arch" >> "${OUT}"
+            ;;
+          jsonl)
+            ;;
+          *)
+            echo "::error::Unsupported format '${FORMAT}'. Use table|csv|jsonl"
+            exit 1
+            ;;
+        esac
+
+        # Emit lines
+        for f in "${ipk_files[@]}"; do
+          fname="$(basename "$f")"
+          eval "$(parse_ipk_filename "$fname")"
+
+          case "${FORMAT}" in
+            table)
+              echo "**${pkg}**|**${ver}**|**${arch}**" >> "${OUT}"
+              ;;
+            csv)
+              echo "${pkg},${ver},${arch}" >> "${OUT}"
+              ;;
+            jsonl)
+              printf '{"pkg":"%s","version":"%s","arch":"%s"}\n' "${pkg}" "${ver}" "${arch}" >> "${OUT}"
+              ;;
+          esac
+        done
+
+        echo "count=${count}" >> "${GITHUB_OUTPUT}"
