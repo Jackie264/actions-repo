@@ -1,0 +1,32 @@
+name: ipkg-make-index
+description: Generate OpenWrt Packages index from a directory of .ipk files
+author: jackie264
+branding:
+  icon: archive
+  color: purple
+
+inputs:
+  pkg_dir:
+    description: Directory containing .ipk files
+    required: true
+  output_file:
+    description: Path to write the Packages index
+    required: false
+    default: Packages
+
+outputs:
+  index_file:
+    description: Path to generated Packages index
+    value: ${{ steps.run.outputs.index_file }}
+
+runs:
+  using: composite
+  steps:
+    - name: Run ipkg-make-index
+      id: run
+      shell: bash
+      run: |
+        chmod +x "${GITHUB_ACTION_PATH}/ipkg-make-index.sh"
+        OUT="${{ inputs.output_file }}"
+        "${GITHUB_ACTION_PATH}/ipkg-make-index.sh" "${{ inputs.pkg_dir }}" > "$OUT"
+        echo "index_file=$OUT" >> $GITHUB_OUTPUT
