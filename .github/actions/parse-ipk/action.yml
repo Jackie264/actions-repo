@@ -7,18 +7,18 @@ branding:
 
 inputs:
   base_path:
-    description: Absolute or workspace-relative directory to search
+    description: "Absolute or workspace-relative directory to search"
     required: true
   pattern:
-    description: Glob pattern relative to base_path (default **/*.ipk)
+    description: "Glob pattern relative to base_path (default **/*.ipk)"
     required: false
     default: "**/*.ipk"
   format:
-    description: Output format: table | csv | jsonl
+    description: "Output format: table | csv | jsonl"
     required: false
     default: "table"
   output_file:
-    description: Path (workspace-relative or absolute) to write the output file
+    description: "Path (workspace-relative or absolute) to write the output file"
     required: true
 
 outputs:
