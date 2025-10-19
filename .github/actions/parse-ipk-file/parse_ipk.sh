@@ -11,7 +11,7 @@ parse_ipk_filename() {
   local pkg="${base%_*_*}"
 
   # version = strip "<pkg>_" then drop the final underscore segment
-  local ver_arch="${base#${pkg}_}"
+  local ver_arch="${base#"${pkg}"_}"
   local ver="${ver_arch%_*}"
 
   # arch = last underscore segment
