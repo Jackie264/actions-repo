@@ -1,7 +1,7 @@
 name: Auto Tag Actions Repo
 
 permissions:
-  contents: write   # 需要写权限才能推送 tag
+  contents: write
 
 on:
   push:
@@ -15,48 +15,70 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
         with:
-          fetch-depth: 0   # 必须完整历史才能操作 tag
+          fetch-depth: 0
 
-      - name: Generate version
-        id: ver
+      - name: Bump version
+        id: bump
         run: |
-          # 这里你可以自定义版本号策略
-          VERSION="v$(date +'%Y.%m.%d')-$(git rev-parse --short HEAD)"
-          echo "VERSION=$VERSION" >> $GITHUB_ENV
-          echo "version=$VERSION" >> $GITHUB_OUTPUT
+          # 获取最新的版本号 tag（忽略 latest）
+          LAST_TAG=$(git tag --sort=-v:refname | grep -E '^v[0-9]+\.[0-9]+\.[0-9]+$' | head -n 1)
 
-      - name: Create or update tag
+          if [ -z "$LAST_TAG" ]; then
+            NEW_VERSION="0.0.1"
+          else
+            IFS='.' read -r major minor patch <<< "${LAST_TAG#v}"
+
+            # 最近一次提交信息
+            COMMIT_MSG=$(git log -1 --pretty=%B)
+            echo "最近一次提交信息: $COMMIT_MSG"
+
+            if echo "$COMMIT_MSG" | grep -qi "release:major"; then
+              NEW_VERSION="$((major+1)).0.0"
+              echo "检测到 release:major，主版本号 +1"
+            elif echo "$COMMIT_MSG" | grep -qi "release:minor"; then
+              NEW_VERSION="$major.$((minor+1)).0"
+              echo "检测到 release:minor，次版本号 +1"
+            else
+              NEW_VERSION="$major.$minor.$((patch+1))"
+              echo "默认 patch +1"
+            fi
+          fi
+
+          echo "NEW_VERSION=$NEW_VERSION" >> $GITHUB_ENV
+          echo "version=$NEW_VERSION" >> $GITHUB_OUTPUT
+          echo "Bumped version: v$NEW_VERSION"
+
+      - name: Create new version tag
         run: |
-          VERSION=${{ env.VERSION }}
-          echo "打 tag: $VERSION"
+          VERSION="v${{ steps.bump.outputs.version }}"
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
 
-          # 如果 tag 已存在，先删除再打
-          if git rev-parse "$VERSION" >/dev/null 2>&1; then
-            git tag -d "$VERSION"
-            git push origin :refs/tags/$VERSION
-          fi
-
           git tag "$VERSION"
           git push origin "$VERSION"
 
-      - name: Delete old tags (keep only latest)
+      - name: Update 'latest' tag
         run: |
-          VERSION=${{ env.VERSION }}
-          echo "保留最新 tag: $VERSION，删除其他所有 tag"
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+
+          if git rev-parse latest >/dev/null 2>&1; then
+            git tag -d latest
+            git push origin :refs/tags/latest
+          fi
+
+          git tag latest
+          git push origin latest
+
+      - name: Delete old tags (keep latest 3 + latest)
+        run: |
           git fetch --tags
-          for t in $(git tag); do
-            if [ "$t" != "$VERSION" ]; then
+          TAGS=$(git tag --sort=-v:refname | grep -E '^v[0-9]+\.[0-9]+\.[0-9]+$')
+          KEEP=$(echo "$TAGS" | head -n 3)
+
+          for t in $TAGS; do
+            if ! echo "$KEEP" | grep -q "^$t$"; then
               echo "删除旧 tag: $t"
-              git push origin :refs/tags/$t
+              git push origin :refs/tags/$t || true
             fi
           done
-          # 如果 tag 已存在，先删除再打
-          if git rev-parse "$VERSION" >/dev/null 2>&1; then
-            git tag -d "$VERSION"
-            git push origin :refs/tags/$VERSION
-          fi
-
-          git tag "$VERSION"
-          git push origin "$VERSION"
