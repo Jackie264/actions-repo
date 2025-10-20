@@ -1,0 +1,34 @@
+name: Rename IPK files
+description: "Normalize .ipk filenames by replacing or stripping ~commit"
+author: jackie264
+branding:
+  icon: package
+  color: blue
+
+inputs:
+  target_dir:
+    description: "Directory containing .ipk files"
+    required: false
+    default: "."
+  mode:
+    description: "Rename mode: dot (replace ~ with .), strip (remove ~commit)"
+    required: false
+    default: "dot"
+
+outputs:
+  files:
+    description: "Comma-separated list of renamed files"
+    value: ${{ steps.run.outputs.files }}
+
+runs:
+  using: composite
+  steps:
+    - name: Run renamer
+      id: run
+      shell: bash
+      env:
+        TARGET_DIR: ${{ inputs.target_dir }}
+        MODE: ${{ inputs.mode }}
+      run: |
+        chmod +x "${GITHUB_ACTION_PATH}/rename-ipk.sh"
+        "${GITHUB_ACTION_PATH}/rename-ipk.sh"
