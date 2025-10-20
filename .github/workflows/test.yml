@@ -101,15 +101,23 @@ jobs:
 
       - name: Show renamed files (dot mode)
         run: |
-          echo "Renamed files: ${{ steps.renamedot.outputs.files }}"
+          echo "Renamed files:"
+          echo "${{ steps.renamedot.outputs.files }}"
+
+      - name: Prepare dummy ipk files for (strip mode)
+        run: |
+          mkdir -p sdk/upload/x86_64/rename-ipk
+          echo "dummy" > sdk/upload/x86_64/rename-ipk/renamepkg_3.0.1~12345678_all.ipk
+          echo "dummy" > sdk/upload/x86_64/rename-ipk/renamepkg_3.0.2~abcdef12_all.ipk
 
       - name: Test rename-ipk (strip mode)
         id: renamestrip
         uses: ./rename-ipk
         with:
-          target_dir: sdk/upload/x86_64/packages
+          target_dir: sdk/upload/x86_64/rename-ipk
           mode: strip
 
       - name: Show renamed files (strip mode)
         run: |
-          echo "Renamed files: ${{ steps.renamestrip.outputs.files }}"
+          echo "Renamed files:"
+          echo "${{ steps.renamestrip.outputs.files }}"
