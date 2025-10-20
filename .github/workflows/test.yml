@@ -100,7 +100,8 @@ jobs:
           mode: dot
 
       - name: Show renamed files (dot mode)
-        run: echo "Renamed files: ${{ steps.renamedot.outputs.files }}"
+        run: |
+          echo "Renamed files: ${{ steps.renamedot.outputs.files }}"
 
       - name: Test rename-ipk (strip mode)
         id: renamestrip
@@ -110,4 +111,5 @@ jobs:
           mode: strip
 
       - name: Show renamed files (strip mode)
-        run: echo "Renamed files: ${{ steps.renamestrip.outputs.files }}"
+        run: |
+          echo "Renamed files: ${{ steps.renamestrip.outputs.files }}"
