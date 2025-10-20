@@ -21,6 +21,9 @@ outputs:
   ver:
     description: "Package version"
     value: ${{ steps.run.outputs.ver }}
+  ver_full:
+    description: "Package version"
+    value: ${{ steps.run.outputs.ver_full }}
   arch:
     description: "Package architecture"
     value: ${{ steps.run.outputs.arch }}
