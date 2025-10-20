@@ -11,12 +11,13 @@ for f in "$TARGET_DIR"/*~*.ipk; do
   [ -f "$f" ] || continue
   case "$MODE" in
     dot)
-      newf="${f//~/.}"
+      # 注意 ~ 要转义
+      newf="${f//\~/.}"
       ;;
     strip)
       base=$(basename "$f")
-      prefix="${base%%~*}"
-      arch="${base##*_}"
+      prefix="${base%%~*}"       # 去掉 ~commit 及后面
+      arch="${base##*_}"         # all/ipk 架构部分
       newf="$(dirname "$f")/${prefix}_${arch}"
       ;;
     *)
@@ -31,6 +32,9 @@ for f in "$TARGET_DIR"/*~*.ipk; do
   RENAMED_FILES+=("$newf")
 done
 
+# 每行一个文件写到 GITHUB_OUTPUT
 {
-  echo "files=$(printf '%s,' "${RENAMED_FILES[@]}" | sed 's/,$//')"
+  for f in "${RENAMED_FILES[@]}"; do
+    echo "files=$f"
+  done
 } >> "$GITHUB_OUTPUT"
