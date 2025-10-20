@@ -33,7 +33,8 @@ jobs:
           mkdir -p sdk/upload/x86_64/packages
           echo "dummy" > sdk/upload/x86_64/packages/testpkg_1.0.0_x86_64.ipk
           echo "dummy" > sdk/upload/x86_64/packages/anotherpkg_2.3.4_all.ipk
-          echo "dummy" > sdk/upload/x86_64/packages/renamepkg_2.3.4~12345678_all.ipk
+          echo "dummy" > sdk/upload/x86_64/packages/renamepkg_3.0.1~12345678_all.ipk
+          echo "dummy" > sdk/upload/x86_64/packages/renamepkg_3.0.2~abcdef12_all.ipk
 
       - name: Test parse-ipk (batch)
         id: parsebatch
@@ -90,3 +91,23 @@ jobs:
 
       - name: Show Packages index
         run: cat Packages
+
+      - name: Test rename-ipk (dot mode)
+        id: renamedot
+        uses: ./rename-ipk
+        with:
+          target_dir: sdk/upload/x86_64/packages
+          mode: dot
+
+      - name: Show renamed files (dot mode)
+        run: echo "Renamed files: ${{ steps.renamedot.outputs.files }}"
+
+      - name: Test rename-ipk (strip mode)
+        id: renamestrip
+        uses: ./rename-ipk
+        with:
+          target_dir: sdk/upload/x86_64/packages
+          mode: strip
+
+      - name: Show renamed files (strip mode)
+        run: echo "Renamed files: ${{ steps.renamestrip.outputs.files }}"
