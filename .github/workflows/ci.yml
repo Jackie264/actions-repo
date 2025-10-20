@@ -33,6 +33,7 @@ jobs:
           mkdir -p sdk/upload/x86_64/packages
           echo "dummy" > sdk/upload/x86_64/packages/testpkg_1.0.0_x86_64.ipk
           echo "dummy" > sdk/upload/x86_64/packages/anotherpkg_2.3.4_all.ipk
+          echo "dummy" > sdk/upload/x86_64/packages/renamepkg_2.3.4~12345678_all.ipk
 
       - name: Test parse-ipk (batch)
         id: parsebatch
