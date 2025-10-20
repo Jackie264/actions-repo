@@ -15,8 +15,8 @@ for f in "$TARGET_DIR"/*~*.ipk; do
       ;;
     strip)
       base=$(basename "$f")
-      prefix="${base%%~*}"       # 去掉 ~commit 及后面
-      arch="${base##*_}"         # all/ipk 架构部分
+      prefix="${base%%~*}"
+      arch="${base##*_}"
       newf="$(dirname "$f")/${prefix}_${arch}"
       ;;
     *)
@@ -31,7 +31,6 @@ for f in "$TARGET_DIR"/*~*.ipk; do
   RENAMED_FILES+=("$newf")
 done
 
-# 输出到 GITHUB_OUTPUT，方便后续步骤使用
 {
   echo "files=$(printf '%s,' "${RENAMED_FILES[@]}" | sed 's/,$//')"
 } >> "$GITHUB_OUTPUT"
