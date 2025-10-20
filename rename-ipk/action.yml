@@ -15,10 +15,16 @@ inputs:
     required: false
     default: "dot"
 
+outputs:
+  files:
+    description: "Comma-separated list of renamed files"
+    value: ${{ steps.run.outputs.files }}
+
 runs:
   using: composite
   steps:
     - name: Run renamer
+      id: run
       shell: bash
       env:
         TARGET_DIR: ${{ inputs.target_dir }}
