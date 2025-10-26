@@ -1,6 +1,6 @@
 name: "OpenWrt package PKG_MIRROR_HASH calculator"
 description: "Use to calculating PKG_MIRROR_HASH for openwrt packages"
-author: muink
+author: Jackie264
 runs:
   using: 'composite'
   steps:
@@ -39,6 +39,11 @@ runs:
 
     - run: echo "${{ github.action_path }}" >> $GITHUB_PATH
       shell: bash
+
+    - name: Ensure helper script is executable
+      shell: bash
+      run: chmod +x "${{ github.action_path }}/get_PKG_MIRROR_HASH.sh"
+      
     - name: Calculate PKG_MIRROR_HASH
       shell: bash
       run: |
