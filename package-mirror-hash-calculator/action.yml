@@ -54,4 +54,4 @@ runs:
         git add "$MAKEFILE"
         git diff-index --cached --quiet HEAD "$MAKEFILE" \
         || (git commit -m "Update packages" && git push \
-        "https://x-access-token:$CUSTOM_PACKAGES_TOKEN@github.com/$GITHUB_REPOSITORY" HEAD:$GITHUB_REF_NAME)
+        "https://x-access-token:$commit_token@github.com/$GITHUB_REPOSITORY" HEAD:$GITHUB_REF_NAME)
