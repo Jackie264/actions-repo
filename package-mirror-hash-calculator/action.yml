@@ -66,6 +66,7 @@ runs:
         git config --local user.name "GitHub Action"
         git config --local user.email "actions-user@users.noreply.github.com"
         git add "$MAKEFILE"
+        : "${COMMIT_MESSAGE:=Update packages}"
         git diff-index --cached --quiet HEAD "$MAKEFILE" \
-        || (git commit -m "Update packages" && git push \
+        || (git commit -m "$COMMIT_MESSAGE" && git push \
         "https://x-access-token:$commit_token@github.com/$GITHUB_REPOSITORY" HEAD:$GITHUB_REF_NAME)
